@@ -17,10 +17,7 @@ public class StatisticsLife {
 			for (Pattern p:patternList)
 			{
 				System.out.println("Analysing " + p.getName());
-				boolean[][] world = new boolean[p.getHeight()][p.getWidth()];
-				p.initialise(world);
-				Statistics stats = new Statistics(world);
-				play(world,stats);
+				Statistics stats=analyse(p);
 				statList.add(stats);
 			}
 			System.out.println();
@@ -77,6 +74,14 @@ public class StatisticsLife {
 		catch (ArrayIndexOutOfBoundsException e){
 			System.out.println("Incorrect number of arguments, expected\n[ URL | FILE ] [INDEX]");
 		}
+	}
+	public static Statistics analyse(Pattern p)
+	{
+		boolean[][] world = new boolean[p.getHeight()][p.getWidth()];
+		p.initialise(world);
+		Statistics stats = new Statistics(world);
+		play(world,stats);
+		return stats;
 	}
 	public static void play(boolean [][] world, Statistics stats){
 		boolean done = false;
