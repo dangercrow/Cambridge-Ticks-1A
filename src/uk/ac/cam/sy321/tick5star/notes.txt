@@ -1,0 +1,10 @@
+Competition Pattern is 5 generations of:
+"Haunting Pachelbel:Sahil Youngs:20:20:1:1:00000000010010001 00000000010010001 00100100010000000 00100100010000000 10001001000000000 10001001000000000 00000100010010000 00000100010010000 00001001000100000 00001001000100000 00000000010010001 00000000010010001 00001001000100000 00001001000100000 00100100010000000 00100100010000000"
+
+My implementation is as follows:
+	Take the world, and scan each row downwards sequentially.
+	On each row, if the cell is alive, play the note associated with that column.
+	The note is calculated by its offset from the middle cell, the middle cell (left middle if even) being C5, offset is in semi-tones.
+	Each generation, keep a record of the empty rows.
+	If three rows sequentially in a generation are empty, don't leave an empty noise for the third one.
+	After all the rows are converted to sound, leave an empty noise, and generate the next generation.

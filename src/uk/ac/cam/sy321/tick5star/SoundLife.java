@@ -17,8 +17,11 @@ public class SoundLife {
 			return;
 		}
 		double BPM = 240.0;
+		boolean trimSparse = true; //Controls whether long sequences of empty sound frames should be trimmed
 		AudioSequence output = new AudioSequence(60.0/BPM);
+		output.advance();
 		try{
+			FileOutputStream fd = new FileOutputStream(new File(args[2]));
 			Pattern p = new Pattern(args[0]);
 			int gens = Integer.parseInt(args[1]);
 			boolean[][] world = new boolean[p.getHeight()][p.getWidth()];
@@ -30,21 +33,43 @@ public class SoundLife {
 					493.883, 466.164, 440, 415.305, 391.995, 369.994, 349.228, 329.628, 311.127, 293.665, 277.183, 261.626, 
 					246.942, 233.082, 220, 207.652, 195.998, 184.997, 174.614, 164.814, 155.563, 146.832, 138.591, 130.813,
 					123.471, 116.541, 110, 103.826, 97.9989, 92.4986, 87.3071, 82.4069};
-			int lowNote = 35 - p.getWidth()/2; //One of the central cells makes C5
+			int lowNote = 36 - p.getWidth()/2; //One of the central cells makes C5
 			for (int i = 0; i<gens; i++)
 			{
+				boolean[] sparseness = new boolean[world.length];
 				for (int j = 0; j<world.length;j++)
 				{
+					boolean isEmpty=true;
 					for (int k = 0; k<world.length;k++)
 					{
-						int note = lowNote+k < 0 ? 0 : (lowNote+k > 67 ? 67 : lowNote+k);
-						output.addSound(new SineWaveSound(freqs[note],0.5));
+						if (world[j][k]){
+							int note = lowNote+k < 0 ? 0 : (lowNote+k > 67 ? 67 : lowNote+k); //pull low/high notes in
+							output.addSound(new SineWaveSound(freqs[note],1.0/world[j].length));
+							isEmpty=false;
+						}
+					}
+					sparseness[j] = isEmpty;
+					if (trimSparse){
+						try
+						{
+							if (!sparseness[j] || !sparseness[j-1] || !sparseness[j-2]){
+								output.advance(); //Allows a maximum of 2 blank sound-frames between generations
+							}
+							//Else: Row trimmed at Generation i - Row j
+						}
+						catch (ArrayIndexOutOfBoundsException e)
+						{//First few frames, allow it to be empty noise
+							output.advance();
+						}
+					}
+					else
+					{
+						output.advance();
 					}
 				}
-				output.advance();
 				world = nextGeneration(world);
 			}
-			output.write(new FileOutputStream(new File(args[2])));
+			output.write(fd);
 		}
 		catch (PatternFormatException e)
 		{
